@@ -1,11 +1,18 @@
 const express = require('express');
-const usuarioRouter = require('./routes/usuario');
-const lista1Router = require('./routes/lista1');
+const professoresRouter = require('./routes/professor');
+const mongoose = require('mongoose');
 
 const app = express();
 app.use(express.json());
-app.use('/usuario', usuarioRouter);
-app.use('/lista1', lista1Router);
+app.use('/professores', professoresRouter);
 
-
-app.listen(3000, () => console.log('Servidor rodando na porta: 3000'));
+mongoose.connect('mongodb+srv://gibsandreoliga:SmfZPoWQkZvvnsXD@cluster0.eec16.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+.then(() => {
+app.listen(3000, () => {
+console.log('Conectado ao mongoDB');
+console.log('Servidor iniciado na porta 3000');
+})
+})
+.catch((err) => {
+console.log(err);
+});

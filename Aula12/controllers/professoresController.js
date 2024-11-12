@@ -12,9 +12,15 @@ exports.listarProfessores = async (req, res) => {
 //buscar professor por departamento
 exports.listarProfessoresPorDepartamento = async (req, res) => {
     try {
-        const professores = await Professores.find({ departamento: req.params.departamento });
+        const departamento = req.params.departamento.toLowerCase(); 
+
+        const professores = await Professores.find({
+            $expr: { $eq: [{ $toLower: "$departamento" }, departamento] } 
+        });
+
         res.json(professores);
     } catch (err) {
+        console.error("Erro ao buscar professores por departamento:", err); 
         res.status(500).json({ error: 'Erro em buscar professores por departamento.' });
     }
 };
@@ -22,7 +28,7 @@ exports.listarProfessoresPorDepartamento = async (req, res) => {
 // buscar professor por ID
 exports.buscarProfessorPorId = async (req, res) => {
     try {
-        const professor = await Professores.findById(req.params.id);
+        const professor = await Professores.findOne({ id: req.params.id });
         if (!professor) return res.status(404).send('Id não existe');
         res.json(professor);
     } catch (err) {
@@ -44,24 +50,27 @@ exports.listarTurmasProfessor = async (req, res) => {
 exports.atualizarProfessor = async (req, res) => {
     const { nome, idade, departamento } = req.body;
     try {
-        const professor = await Professores.findByIdAndUpdate(
-            req.params.id,
+        const professor = await Professores.findOneAndUpdate(
+            { id: req.params.id }, // Busca pelo campo "id"
             { nome, idade, departamento },
-            { new: true }
+            { new: true } // Retorna o documento atualizado
         );
         if (!professor) return res.status(404).send('Id não existe');
         res.json(professor);
     } catch (err) {
+        console.error("Erro ao atualizar professor:", err); // Log do erro
         res.status(500).json({ error: 'Erro ao atualizar professor.' });
     }
 };
 //adicionar turma para um professor
 exports.inserirTurmaProfessor = async (req, res) => {
     try {
-        const professor = await Professores.findById(req.params.id);
+        const professor = await Professores.findOne({ id: req.params.id }); 
+        
         if (!professor) {
-            return res.status(404).json({ error: 'Erro em busca de  professores.' });
+            return res.status(404).json({ error: 'Id do professor não existe.' });
         }
+
         const novaTurma = req.body;
         professor.turmas.push(novaTurma);
         
@@ -69,14 +78,14 @@ exports.inserirTurmaProfessor = async (req, res) => {
 
         res.status(201).json(novaTurma);
     } catch (error) {
-        res.status(500).json({ error: error });
+        console.error("Erro ao inserir turma:", error); 
+        res.status(500).json({ error: 'Erro ao inserir turma.' });
     }
-    
 };
 // Remover professor
 exports.removerProfessor = async (req, res) => {
     try {
-        const professor = await Professores.findByIdAndDelete(req.params.id);
+        const professor = await Professores.findOneAndDelete(req.params.id);
         if (!professor) return res.status(404).send('Id não existe');
         res.json(professor);
     } catch (err) {

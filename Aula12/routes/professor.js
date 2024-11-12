@@ -7,6 +7,7 @@ router.get('/:id', professoresController.buscarProfessorPorId);
 router.post('/', professoresController.inserirTurmaProfessor);
 router.put('/:id', professoresController.atualizarProfessor);
 router.get('/:id/turmas', professoresController.listarTurmasProfessor);
+router.post('/:id/turmas', professoresController.inserirTurmaProfessor);
 router.get('/departamento/:departamento', professoresController.listarProfessoresPorDepartamento);
 router.delete('/:id', professoresController.removerProfessor);
 
